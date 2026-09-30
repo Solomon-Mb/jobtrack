@@ -15,40 +15,64 @@
     </header>
 
     <main>
+    <section class="stats">
+        <div class="card">
+            <h3>Total Applications</h3>
+            <p id="totalApplications">0</p>
+        </div>
 
-        <section class="stats">
-            <div class="card">
-                <h2>0</h2>
-                <p>Total Applications</p>
-            </div>
+        <div class="card">
+            <h3>Applied</h3>
+            <p id="appliedApplications">0</p>
+        </div>
 
-            <div class="card">
-                <h2>0</h2>
-                <p>Applied</p>
-            </div>
+        <div class="card">
+            <h3>Interviews</h3>
+            <p id="interviewApplications">0</p>
+        </div>
 
-            <div class="card">
-                <h2>0</h2>
-                <p>Interviews</p>
-            </div>
+        <div class="card">
+            <h3>Offers</h3>
+            <p id="offerApplications">0</p>
+        </div>
+    </section>
 
-            <div class="card">
-                <h2>0</h2>
-                <p>Accepted</p>
-            </div>
-        </section>
-
-        <section class="applications">
+    <section class="applications">
+        <div class="section-header">
             <h2>My Applications</h2>
+            <button id="addApplicationBtn">Add Application</button>
+        </div>
 
-            <button id="addApplication">
-                + Add Application
-            </button>
+        <div id="applicationForm" class="form-container hidden">
+            <h3>Add Job Application</h3>
 
+            <form id="jobForm">
+                <label for="company">Company</label>
+                <input type="text" id="company" required>
+
+                <label for="position">Position</label>
+                <input type="text" id="position" required>
+
+                <label for="status">Status</label>
+                <select id="status">
+                    <option value="Applied">Applied</option>
+                    <option value="Interview">Interview</option>
+                    <option value="Offer">Offer</option>
+                    <option value="Rejected">Rejected</option>
+                </select>
+
+                <label for="date">Application Date</label>
+                <input type="date" id="date" required>
+
+                <button type="submit">Save Application</button>
+            </form>
+        </div>
+
+        <div id="applicationsList">
             <p>No applications yet.</p>
-        </section>
-
-    </main>
+        </div>
+    </section>
+</main>
 
     <script src="script.js"></script>
 </body>
