@@ -83,3 +83,14 @@ button {
 .hidden {
     display: none;
 }
+.application-card {
+    background: white;
+    padding: 20px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+.application-card h3 {
+    margin-top: 0;
+}
