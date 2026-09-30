@@ -5,11 +5,14 @@ const applicationsList = document.getElementById("applicationsList");
 const totalApplications = document.getElementById("totalApplications");
 
 let applications = [];
+let editingIndex = null;
 
+// Show/hide application form
 addApplicationBtn.addEventListener("click", function () {
     applicationForm.classList.toggle("hidden");
 });
 
+// Submit application form
 jobForm.addEventListener("submit", function (event) {
     event.preventDefault();
 
@@ -25,7 +28,14 @@ jobForm.addEventListener("submit", function (event) {
         date: date
     };
 
-    applications.push(application);
+    // Edit existing application
+    if (editingIndex !== null) {
+        applications[editingIndex] = application;
+        editingIndex = null;
+    } else {
+        // Add new application
+        applications.push(application);
+    }
 
     displayApplications();
 
@@ -33,10 +43,11 @@ jobForm.addEventListener("submit", function (event) {
     applicationForm.classList.add("hidden");
 });
 
+// Display applications
 function displayApplications() {
     applicationsList.innerHTML = "";
 
-    applications.forEach(function (application) {
+    applications.forEach(function (application, index) {
         const applicationCard = document.createElement("div");
 
         applicationCard.classList.add("application-card");
@@ -46,10 +57,34 @@ function displayApplications() {
             <p><strong>Position:</strong> ${application.position}</p>
             <p><strong>Status:</strong> ${application.status}</p>
             <p><strong>Date:</strong> ${application.date}</p>
+
+            <button onclick="editApplication(${index})">Edit</button>
+            <button onclick="deleteApplication(${index})">Delete</button>
         `;
 
         applicationsList.appendChild(applicationCard);
     });
 
     totalApplications.textContent = applications.length;
+}
+
+// Edit application
+function editApplication(index) {
+    const application = applications[index];
+
+    document.getElementById("company").value = application.company;
+    document.getElementById("position").value = application.position;
+    document.getElementById("status").value = application.status;
+    document.getElementById("date").value = application.date;
+
+    editingIndex = index;
+
+    applicationForm.classList.remove("hidden");
+}
+
+// Delete application
+function deleteApplication(index) {
+    applications.splice(index, 1);
+
+    displayApplications();
 }
