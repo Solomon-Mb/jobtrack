@@ -94,3 +94,10 @@ button {
 .application-card h3 {
     margin-top: 0;
 }
+.application-card button {
+    margin-right: 10px;
+    padding: 8px 14px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
