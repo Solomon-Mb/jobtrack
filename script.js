@@ -4,6 +4,9 @@ const jobForm = document.getElementById("jobForm");
 const applicationsList = document.getElementById("applicationsList");
 const totalApplications = document.getElementById("totalApplications");
 
+const searchInput = document.getElementById("searchInput");
+const statusFilter = document.getElementById("statusFilter");
+
 let applications = [];
 let editingIndex = null;
 
@@ -47,7 +50,34 @@ jobForm.addEventListener("submit", function (event) {
 function displayApplications() {
     applicationsList.innerHTML = "";
 
-    applications.forEach(function (application, index) {
+    const searchText = searchInput.value.toLowerCase();
+    const selectedStatus = statusFilter.value;
+
+    const filteredApplications = applications
+        .map(function (application, index) {
+            return {
+                application: application,
+                index: index
+            };
+        })
+        .filter(function (item) {
+            const application = item.application;
+
+            const matchesSearch =
+                application.company.toLowerCase().includes(searchText) ||
+                application.position.toLowerCase().includes(searchText);
+
+            const matchesStatus =
+                selectedStatus === "all" ||
+                application.status === selectedStatus;
+
+            return matchesSearch && matchesStatus;
+        });
+
+    filteredApplications.forEach(function (item) {
+        const application = item.application;
+        const originalIndex = item.index;
+
         const applicationCard = document.createElement("div");
 
         applicationCard.classList.add("application-card");
@@ -58,14 +88,19 @@ function displayApplications() {
             <p><strong>Status:</strong> ${application.status}</p>
             <p><strong>Date:</strong> ${application.date}</p>
 
-            <button onclick="editApplication(${index})">Edit</button>
-            <button onclick="deleteApplication(${index})">Delete</button>
+            <button onclick="editApplication(${originalIndex})">
+                Edit
+            </button>
+
+            <button onclick="deleteApplication(${originalIndex})">
+                Delete
+            </button>
         `;
 
         applicationsList.appendChild(applicationCard);
     });
 
-    totalApplications.textContent = applications.length;
+    totalApplications.textContent = filteredApplications.length;
 }
 
 // Edit application
@@ -88,3 +123,13 @@ function deleteApplication(index) {
 
     displayApplications();
 }
+
+// Search applications
+searchInput.addEventListener("input", function () {
+    displayApplications();
+});
+
+// Filter applications by status
+statusFilter.addEventListener("change", function () {
+    displayApplications();
+});

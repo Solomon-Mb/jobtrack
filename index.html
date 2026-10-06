@@ -40,6 +40,21 @@
     <section class="applications">
         <div class="section-header">
             <h2>My Applications</h2>
+            <div class="filters">
+    <input
+        type="text"
+        id="searchInput"
+        placeholder="Search by company or position"
+    >
+
+    <select id="statusFilter">
+        <option value="all">All Statuses</option>
+        <option value="Applied">Applied</option>
+        <option value="Interview">Interview</option>
+        <option value="Rejected">Rejected</option>
+        <option value="Accepted">Accepted</option>
+    </select>
+</div>
             <button id="addApplicationBtn">Add Application</button>
         </div>
 
