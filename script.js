@@ -11,7 +11,20 @@ const rejectedApplications = document.getElementById("rejectedApplications");
 const searchInput = document.getElementById("searchInput");
 const statusFilter = document.getElementById("statusFilter");
 
-let applications = [];
+// Save and load applications from the browser's localStorage
+function saveApplications() {
+    localStorage.setItem("applications", JSON.stringify(applications));
+}
+
+function loadApplications() {
+    try {
+        return JSON.parse(localStorage.getItem("applications")) || [];
+    } catch (error) {
+        return [];
+    }
+}
+
+let applications = loadApplications();
 let editingIndex = null;
 
 // Show/hide application form
@@ -43,7 +56,7 @@ jobForm.addEventListener("submit", function (event) {
         // Add new application
         applications.push(application);
     }
-
+    saveApplications();
     displayApplications();
 
     jobForm.reset();
@@ -128,8 +141,10 @@ function editApplication(index) {
 // Delete application
 function deleteApplication(index) {
     applications.splice(index, 1);
+    saveApplications();
 
     displayApplications();
+    
 }
 
 // Search applications
@@ -158,3 +173,6 @@ function updateStats() {
     offerApplications.textContent = counts.Offer;
     rejectedApplications.textContent = counts.Rejected;
 }
+
+// Show saved applications when the page loads
+displayApplications();
