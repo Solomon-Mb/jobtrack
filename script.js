@@ -3,6 +3,10 @@ const applicationForm = document.getElementById("applicationForm");
 const jobForm = document.getElementById("jobForm");
 const applicationsList = document.getElementById("applicationsList");
 const totalApplications = document.getElementById("totalApplications");
+const appliedApplications = document.getElementById("appliedApplications");
+const interviewApplications = document.getElementById("interviewApplications");
+const offerApplications = document.getElementById("offerApplications");
+const rejectedApplications = document.getElementById("rejectedApplications");
 
 const searchInput = document.getElementById("searchInput");
 const statusFilter = document.getElementById("statusFilter");
@@ -100,7 +104,11 @@ function displayApplications() {
         applicationsList.appendChild(applicationCard);
     });
 
-    totalApplications.textContent = filteredApplications.length;
+        if (filteredApplications.length === 0) {
+        applicationsList.innerHTML = "<p>No applications found.</p>";
+    }
+
+    updateStats();
 }
 
 // Edit application
@@ -133,3 +141,20 @@ searchInput.addEventListener("input", function () {
 statusFilter.addEventListener("change", function () {
     displayApplications();
 });
+
+// Update dashboard statistics (counts ALL applications, not filtered ones)
+function updateStats() {
+    const counts = { Applied: 0, Interview: 0, Offer: 0, Rejected: 0 };
+
+    applications.forEach(function (application) {
+        if (counts[application.status] !== undefined) {
+            counts[application.status]++;
+        }
+    });
+
+    totalApplications.textContent = applications.length;
+    appliedApplications.textContent = counts.Applied;
+    interviewApplications.textContent = counts.Interview;
+    offerApplications.textContent = counts.Offer;
+    rejectedApplications.textContent = counts.Rejected;
+}
