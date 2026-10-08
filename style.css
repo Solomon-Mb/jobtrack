@@ -143,3 +143,126 @@ button {
     overflow-y: auto;
     margin-bottom: 0;
 }
+
+/* ===== Design polish: header and stat cards ===== */
+body {
+    font-family: "Segoe UI", system-ui, Arial, sans-serif;
+    color: #1f2937;
+}
+
+header {
+    background: #1e293b;
+    color: white;
+}
+
+header h1 {
+    margin: 0 0 8px;
+}
+
+header p {
+    margin: 0;
+    color: #cbd5e1;
+}
+
+.stats {
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+}
+
+.card,
+.applications,
+.application-card {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.card h3 {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #4b5563;
+}
+
+.stats .card:nth-child(1) { border-top: 4px solid #3b82f6; }
+.stats .card:nth-child(2) { border-top: 4px solid #f59e0b; }
+.stats .card:nth-child(3) { border-top: 4px solid #8b5cf6; }
+.stats .card:nth-child(4) { border-top: 4px solid #22c55e; }
+.stats .card:nth-child(5) { border-top: 4px solid #ef4444; }
+
+/* ===== Design polish: filters and buttons ===== */
+.section-header {
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.filters input,
+.filters select {
+    padding: 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.95rem;
+}
+
+.filters input {
+    min-width: 240px;
+}
+
+.form-container {
+    border: 1px solid #e5e7eb;
+}
+
+button {
+    background: #e5e7eb;
+    transition: background 0.2s;
+}
+
+button:hover {
+    background: #d1d5db;
+}
+
+#addApplicationBtn,
+.form-container button[type="submit"] {
+    background: #2563eb;
+    color: white;
+}
+
+#addApplicationBtn:hover,
+.form-container button[type="submit"]:hover {
+    background: #1d4ed8;
+}
+
+button[onclick^="deleteApplication"] {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+button[onclick^="deleteApplication"]:hover {
+    background: #fecaca;
+}
+
+/* ===== Design polish: application cards ===== */
+#applicationsList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 15px;
+}
+
+.application-card {
+    margin-bottom: 0;
+    overflow-wrap: anywhere;
+}
+
+.application-card h3 {
+    color: #111827;
+}
+
+.application-card p {
+    margin: 6px 0;
+}
+
+.application-card button {
+    margin-top: 10px;
+}
