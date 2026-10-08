@@ -82,10 +82,28 @@
 
                 <label for="date">Application Date</label>
                 <input type="date" id="date" required>
+                <label for="interviewDate">Interview Date (optional)</label>
+<input type="date" id="interviewDate">
+
+<label for="companyWebsite">Company Website (optional)</label>
+<input type="text" id="companyWebsite" placeholder="https://example.com">
+
+<label for="companyLocation">Company Location (optional)</label>
+<input type="text" id="companyLocation">
+
+<label for="notes">Notes (optional)</label>
+<textarea id="notes" rows="4"></textarea>
 
                 <button type="submit">Save Application</button>
             </form>
         </div>
+        <div id="detailsOverlay" class="overlay hidden">
+    <div id="detailsPanel" class="form-container">
+        <h3>Application Details</h3>
+        <div id="detailsContent"></div>
+        <button id="closeDetailsBtn">Close</button>
+    </div>
+</div>
 
         <div id="applicationsList">
             <p>No applications yet.</p>

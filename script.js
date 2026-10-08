@@ -7,6 +7,9 @@ const appliedApplications = document.getElementById("appliedApplications");
 const interviewApplications = document.getElementById("interviewApplications");
 const offerApplications = document.getElementById("offerApplications");
 const rejectedApplications = document.getElementById("rejectedApplications");
+const detailsOverlay = document.getElementById("detailsOverlay");
+const detailsContent = document.getElementById("detailsContent");
+const closeDetailsBtn = document.getElementById("closeDetailsBtn");
 
 const searchInput = document.getElementById("searchInput");
 const statusFilter = document.getElementById("statusFilter");
@@ -41,11 +44,20 @@ jobForm.addEventListener("submit", function (event) {
     const status = document.getElementById("status").value;
     const date = document.getElementById("date").value;
 
+       const interviewDate = document.getElementById("interviewDate").value;
+    const website = document.getElementById("companyWebsite").value;
+    const companyLocation = document.getElementById("companyLocation").value;
+    const notes = document.getElementById("notes").value;
+
     const application = {
         company: company,
         position: position,
         status: status,
-        date: date
+        date: date,
+        interviewDate: interviewDate,
+        website: website,
+        location: companyLocation,
+        notes: notes
     };
 
     // Edit existing application
@@ -104,6 +116,9 @@ function displayApplications() {
             <p><strong>Position:</strong> ${application.position}</p>
             <p><strong>Status:</strong> ${application.status}</p>
             <p><strong>Date:</strong> ${application.date}</p>
+                        <button onclick="viewApplication(${originalIndex})">
+                View Details
+            </button>
 
             <button onclick="editApplication(${originalIndex})">
                 Edit
@@ -131,6 +146,10 @@ function editApplication(index) {
     document.getElementById("company").value = application.company;
     document.getElementById("position").value = application.position;
     document.getElementById("status").value = application.status;
+        document.getElementById("interviewDate").value = application.interviewDate || "";
+    document.getElementById("companyWebsite").value = application.website || "";
+    document.getElementById("companyLocation").value = application.location || "";
+    document.getElementById("notes").value = application.notes || "";
     document.getElementById("date").value = application.date;
 
     editingIndex = index;
@@ -176,3 +195,58 @@ function updateStats() {
 
 // Show saved applications when the page loads
 displayApplications();
+
+// View application details
+function viewApplication(index) {
+    const application = applications[index];
+
+    detailsContent.innerHTML = "";
+
+    const rows = [
+        ["Company", application.company],
+        ["Position", application.position],
+        ["Status", application.status],
+        ["Applied on", application.date],
+        ["Interview date", application.interviewDate || "Not set"],
+        ["Website", application.website || "Not provided"],
+        ["Location", application.location || "Not provided"],
+        ["Notes", application.notes || "No notes"]
+    ];
+
+    rows.forEach(function (row) {
+        const paragraph = document.createElement("p");
+        const label = document.createElement("strong");
+
+        label.textContent = row[0] + ": ";
+        paragraph.appendChild(label);
+        paragraph.appendChild(document.createTextNode(row[1]));
+
+        detailsContent.appendChild(paragraph);
+    });
+
+    detailsOverlay.classList.remove("hidden");
+}
+
+// Close details panel
+closeDetailsBtn.addEventListener("click", function () {
+    detailsPanel.classList.add("hidden");
+});// Close details popup
+function closeDetails() {
+    detailsOverlay.classList.add("hidden");
+}
+
+closeDetailsBtn.addEventListener("click", closeDetails);
+
+// Close when clicking the dark background
+detailsOverlay.addEventListener("click", function (event) {
+    if (event.target === detailsOverlay) {
+        closeDetails();
+    }
+});
+
+// Close with the Escape key
+document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+        closeDetails();
+    }
+});
