@@ -106,3 +106,40 @@ button {
     font-weight: bold;
     margin: 10px 0 0;
 }
+.form-container textarea {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-family: inherit;
+    resize: vertical;
+}
+
+#detailsContent p {
+    white-space: pre-wrap;
+}
+#detailsContent p,
+.application-card h3,
+.application-card p {
+    overflow-wrap: anywhere;
+}
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.overlay.hidden {
+    display: none;
+}
+
+#detailsPanel {
+    width: 90%;
+    max-width: 500px;
+    max-height: 80vh;
+    overflow-y: auto;
+    margin-bottom: 0;
+}
