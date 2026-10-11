@@ -1,12 +1,16 @@
+const API_URL = "http://localhost:5000/api/applications";
+
 const addApplicationBtn = document.getElementById("addApplicationBtn");
 const applicationForm = document.getElementById("applicationForm");
 const jobForm = document.getElementById("jobForm");
 const applicationsList = document.getElementById("applicationsList");
+
 const totalApplications = document.getElementById("totalApplications");
 const appliedApplications = document.getElementById("appliedApplications");
 const interviewApplications = document.getElementById("interviewApplications");
 const offerApplications = document.getElementById("offerApplications");
 const rejectedApplications = document.getElementById("rejectedApplications");
+
 const detailsOverlay = document.getElementById("detailsOverlay");
 const detailsContent = document.getElementById("detailsContent");
 const closeDetailsBtn = document.getElementById("closeDetailsBtn");
@@ -14,21 +18,68 @@ const closeDetailsBtn = document.getElementById("closeDetailsBtn");
 const searchInput = document.getElementById("searchInput");
 const statusFilter = document.getElementById("statusFilter");
 
-// Save and load applications from the browser's localStorage
-function saveApplications() {
-    localStorage.setItem("applications", JSON.stringify(applications));
+let applications = [];
+let editingId = null;
+
+// ===== Talking to the backend =====
+
+function jsonOptions(method, data) {
+    return {
+        method: method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    };
 }
 
-function loadApplications() {
+async function request(url, options) {
+    const response = await fetch(url, options);
+
+    if (!response.ok) {
+        let message = "Request failed";
+
+        try {
+            const data = await response.json();
+            message = data.error || message;
+        } catch (error) {
+            // response had no JSON body
+        }
+
+        throw new Error(message);
+    }
+
+    if (response.status === 204) {
+        return null;
+    }
+
+    return response.json();
+}
+
+async function loadApplications() {
     try {
-        return JSON.parse(localStorage.getItem("applications")) || [];
+        applications = await request(API_URL);
+        displayApplications();
     } catch (error) {
-        return [];
+        applicationsList.textContent =
+            "Could not load applications. Is the backend running?";
     }
 }
 
-let applications = loadApplications();
-let editingIndex = null;
+// ===== Helpers =====
+
+// Stops text typed by the user from being treated as HTML
+function escapeHtml(text) {
+    const div = document.createElement("div");
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function findApplication(id) {
+    return applications.find(function (application) {
+        return application.id === id;
+    });
+}
+
+// ===== Form =====
 
 // Show/hide application form
 addApplicationBtn.addEventListener("click", function () {
@@ -36,95 +87,77 @@ addApplicationBtn.addEventListener("click", function () {
 });
 
 // Submit application form
-jobForm.addEventListener("submit", function (event) {
+jobForm.addEventListener("submit", async function (event) {
     event.preventDefault();
 
-    const company = document.getElementById("company").value;
-    const position = document.getElementById("position").value;
-    const status = document.getElementById("status").value;
-    const date = document.getElementById("date").value;
-
-       const interviewDate = document.getElementById("interviewDate").value;
-    const website = document.getElementById("companyWebsite").value;
-    const companyLocation = document.getElementById("companyLocation").value;
-    const notes = document.getElementById("notes").value;
-
     const application = {
-        company: company,
-        position: position,
-        status: status,
-        date: date,
-        interviewDate: interviewDate,
-        website: website,
-        location: companyLocation,
-        notes: notes
+        company: document.getElementById("company").value,
+        position: document.getElementById("position").value,
+        status: document.getElementById("status").value,
+        date: document.getElementById("date").value,
+        interviewDate: document.getElementById("interviewDate").value,
+        website: document.getElementById("companyWebsite").value,
+        location: document.getElementById("companyLocation").value,
+        notes: document.getElementById("notes").value
     };
 
-    // Edit existing application
-    if (editingIndex !== null) {
-        applications[editingIndex] = application;
-        editingIndex = null;
-    } else {
-        // Add new application
-        applications.push(application);
-    }
-    saveApplications();
-    displayApplications();
+    try {
+        if (editingId !== null) {
+            await request(API_URL + "/" + editingId, jsonOptions("PUT", application));
+            editingId = null;
+        } else {
+            await request(API_URL, jsonOptions("POST", application));
+        }
 
-    jobForm.reset();
-    applicationForm.classList.add("hidden");
+        await loadApplications();
+
+        jobForm.reset();
+        applicationForm.classList.add("hidden");
+    } catch (error) {
+        alert(error.message);
+    }
 });
 
-// Display applications
+// ===== Display =====
+
 function displayApplications() {
     applicationsList.innerHTML = "";
 
     const searchText = searchInput.value.toLowerCase();
     const selectedStatus = statusFilter.value;
 
-    const filteredApplications = applications
-        .map(function (application, index) {
-            return {
-                application: application,
-                index: index
-            };
-        })
-        .filter(function (item) {
-            const application = item.application;
+    const filteredApplications = applications.filter(function (application) {
+        const matchesSearch =
+            application.company.toLowerCase().includes(searchText) ||
+            application.position.toLowerCase().includes(searchText);
 
-            const matchesSearch =
-                application.company.toLowerCase().includes(searchText) ||
-                application.position.toLowerCase().includes(searchText);
+        const matchesStatus =
+            selectedStatus === "all" ||
+            application.status === selectedStatus;
 
-            const matchesStatus =
-                selectedStatus === "all" ||
-                application.status === selectedStatus;
+        return matchesSearch && matchesStatus;
+    });
 
-            return matchesSearch && matchesStatus;
-        });
-
-    filteredApplications.forEach(function (item) {
-        const application = item.application;
-        const originalIndex = item.index;
-
+    filteredApplications.forEach(function (application) {
         const applicationCard = document.createElement("div");
 
         applicationCard.classList.add("application-card");
 
         applicationCard.innerHTML = `
-            <h3>${application.company}</h3>
-            <p><strong>Position:</strong> ${application.position}</p>
-            <p><strong>Status:</strong> ${application.status}</p>
-            <p><strong>Date:</strong> ${application.date}</p>
-                        <button onclick="viewApplication(${originalIndex})">
+            <h3>${escapeHtml(application.company)}</h3>
+            <p><strong>Position:</strong> ${escapeHtml(application.position)}</p>
+            <p><strong>Status:</strong> ${escapeHtml(application.status)}</p>
+            <p><strong>Date:</strong> ${escapeHtml(application.date)}</p>
+
+            <button onclick="viewApplication(${application.id})">
                 View Details
             </button>
 
-            <button onclick="editApplication(${originalIndex})">
+            <button onclick="editApplication(${application.id})">
                 Edit
             </button>
 
-            <button onclick="deleteApplication(${originalIndex})">
+            <button onclick="deleteApplication(${application.id})">
                 Delete
             </button>
         `;
@@ -132,49 +165,12 @@ function displayApplications() {
         applicationsList.appendChild(applicationCard);
     });
 
-        if (filteredApplications.length === 0) {
+    if (filteredApplications.length === 0) {
         applicationsList.innerHTML = "<p>No applications found.</p>";
     }
 
     updateStats();
 }
-
-// Edit application
-function editApplication(index) {
-    const application = applications[index];
-
-    document.getElementById("company").value = application.company;
-    document.getElementById("position").value = application.position;
-    document.getElementById("status").value = application.status;
-        document.getElementById("interviewDate").value = application.interviewDate || "";
-    document.getElementById("companyWebsite").value = application.website || "";
-    document.getElementById("companyLocation").value = application.location || "";
-    document.getElementById("notes").value = application.notes || "";
-    document.getElementById("date").value = application.date;
-
-    editingIndex = index;
-
-    applicationForm.classList.remove("hidden");
-}
-
-// Delete application
-function deleteApplication(index) {
-    applications.splice(index, 1);
-    saveApplications();
-
-    displayApplications();
-    
-}
-
-// Search applications
-searchInput.addEventListener("input", function () {
-    displayApplications();
-});
-
-// Filter applications by status
-statusFilter.addEventListener("change", function () {
-    displayApplications();
-});
 
 // Update dashboard statistics (counts ALL applications, not filtered ones)
 function updateStats() {
@@ -193,12 +189,46 @@ function updateStats() {
     rejectedApplications.textContent = counts.Rejected;
 }
 
-// Show saved applications when the page loads
-displayApplications();
+// ===== Edit and delete =====
 
-// View application details
-function viewApplication(index) {
-    const application = applications[index];
+function editApplication(id) {
+    const application = findApplication(id);
+
+    if (!application) {
+        return;
+    }
+
+    document.getElementById("company").value = application.company;
+    document.getElementById("position").value = application.position;
+    document.getElementById("status").value = application.status;
+    document.getElementById("date").value = application.date;
+    document.getElementById("interviewDate").value = application.interviewDate || "";
+    document.getElementById("companyWebsite").value = application.website || "";
+    document.getElementById("companyLocation").value = application.location || "";
+    document.getElementById("notes").value = application.notes || "";
+
+    editingId = id;
+
+    applicationForm.classList.remove("hidden");
+}
+
+async function deleteApplication(id) {
+    try {
+        await request(API_URL + "/" + id, { method: "DELETE" });
+        await loadApplications();
+    } catch (error) {
+        alert(error.message);
+    }
+}
+
+// ===== Details popup =====
+
+function viewApplication(id) {
+    const application = findApplication(id);
+
+    if (!application) {
+        return;
+    }
 
     detailsContent.innerHTML = "";
 
@@ -227,10 +257,6 @@ function viewApplication(index) {
     detailsOverlay.classList.remove("hidden");
 }
 
-// Close details panel
-closeDetailsBtn.addEventListener("click", function () {
-    detailsPanel.classList.add("hidden");
-});// Close details popup
 function closeDetails() {
     detailsOverlay.classList.add("hidden");
 }
@@ -250,3 +276,12 @@ document.addEventListener("keydown", function (event) {
         closeDetails();
     }
 });
+
+// ===== Search and filter =====
+
+searchInput.addEventListener("input", displayApplications);
+statusFilter.addEventListener("change", displayApplications);
+
+// ===== Start =====
+
+loadApplications();
