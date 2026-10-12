@@ -13,28 +13,30 @@ const COLUMNS = `
     notes
 `;
 
-async function getAll() {
+async function getAll(userId) {
     const result = await pool.query(
-        `SELECT ${COLUMNS} FROM applications ORDER BY id`
+        `SELECT ${COLUMNS} FROM applications WHERE user_id = $1 ORDER BY id`,
+        [userId]
     );
     return result.rows;
 }
 
-async function getById(id) {
+async function getById(id, userId) {
     const result = await pool.query(
-        `SELECT ${COLUMNS} FROM applications WHERE id = $1`,
-        [id]
+        `SELECT ${COLUMNS} FROM applications WHERE id = $1 AND user_id = $2`,
+        [id, userId]
     );
     return result.rows[0];
 }
 
-async function create(data) {
+async function create(userId, data) {
     const result = await pool.query(
         `INSERT INTO applications
-            (company, position, status, applied_date, interview_date, website, location, notes)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            (user_id, company, position, status, applied_date, interview_date, website, location, notes)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
          RETURNING ${COLUMNS}`,
         [
+            userId,
             data.company,
             data.position,
             data.status,
@@ -48,12 +50,12 @@ async function create(data) {
     return result.rows[0];
 }
 
-async function update(id, data) {
+async function update(id, userId, data) {
     const result = await pool.query(
         `UPDATE applications
          SET company = $1, position = $2, status = $3, applied_date = $4,
              interview_date = $5, website = $6, location = $7, notes = $8
-         WHERE id = $9
+         WHERE id = $9 AND user_id = $10
          RETURNING ${COLUMNS}`,
         [
             data.company,
@@ -64,16 +66,17 @@ async function update(id, data) {
             data.website,
             data.location,
             data.notes,
-            id
+            id,
+            userId
         ]
     );
     return result.rows[0] || null;
 }
 
-async function remove(id) {
+async function remove(id, userId) {
     const result = await pool.query(
-        "DELETE FROM applications WHERE id = $1",
-        [id]
+        "DELETE FROM applications WHERE id = $1 AND user_id = $2",
+        [id, userId]
     );
     return result.rowCount > 0;
 }

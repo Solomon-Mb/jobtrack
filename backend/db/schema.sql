@@ -19,3 +19,10 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash VARCHAR(255) NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Each application belongs to a user
+ALTER TABLE applications
+    ADD COLUMN IF NOT EXISTS user_id INTEGER NOT NULL
+    REFERENCES users(id) ON DELETE CASCADE;
+
+CREATE INDEX IF NOT EXISTS idx_applications_user_id ON applications (user_id);

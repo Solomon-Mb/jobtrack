@@ -47,9 +47,11 @@ function parseId(req) {
     return id;
 }
 
+// req.userId is set by the requireAuth middleware
+
 async function getApplications(req, res, next) {
     try {
-        res.json(await Application.getAll());
+        res.json(await Application.getAll(req.userId));
     } catch (error) {
         next(error);
     }
@@ -58,7 +60,7 @@ async function getApplications(req, res, next) {
 async function getApplication(req, res, next) {
     try {
         const id = parseId(req);
-        const application = id === null ? null : await Application.getById(id);
+        const application = id === null ? null : await Application.getById(id, req.userId);
 
         if (!application) {
             return res.status(404).json({ error: "Application not found" });
@@ -79,7 +81,7 @@ async function createApplication(req, res, next) {
             return res.status(400).json({ error: error });
         }
 
-        const application = await Application.create(pickFields(body));
+        const application = await Application.create(req.userId, pickFields(body));
         res.status(201).json(application);
     } catch (error) {
         next(error);
@@ -98,7 +100,7 @@ async function updateApplication(req, res, next) {
         const id = parseId(req);
         const application = id === null
             ? null
-            : await Application.update(id, pickFields(body));
+            : await Application.update(id, req.userId, pickFields(body));
 
         if (!application) {
             return res.status(404).json({ error: "Application not found" });
@@ -113,7 +115,7 @@ async function updateApplication(req, res, next) {
 async function deleteApplication(req, res, next) {
     try {
         const id = parseId(req);
-        const removed = id === null ? false : await Application.remove(id);
+        const removed = id === null ? false : await Application.remove(id, req.userId);
 
         if (!removed) {
             return res.status(404).json({ error: "Application not found" });
