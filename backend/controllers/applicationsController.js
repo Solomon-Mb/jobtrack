@@ -1,6 +1,7 @@
 const Application = require("../models/applicationModel");
 
 const STATUSES = ["Applied", "Interview", "Offer", "Rejected"];
+const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
 function isText(value) {
     return typeof value === "string" && value.trim() !== "";
@@ -11,6 +12,10 @@ function validate(body) {
     if (!isText(body.company)) return "Company is required";
     if (!isText(body.position)) return "Position is required";
     if (!isText(body.date)) return "Date is required";
+    if (!DATE_PATTERN.test(body.date)) return "Date must be in YYYY-MM-DD format";
+    if (body.interviewDate && !DATE_PATTERN.test(body.interviewDate)) {
+        return "Interview date must be in YYYY-MM-DD format";
+    }
     if (!STATUSES.includes(body.status)) {
         return "Status must be one of: " + STATUSES.join(", ");
     }
@@ -31,57 +36,93 @@ function pickFields(body) {
     };
 }
 
-function getApplications(req, res) {
-    res.json(Application.getAll());
+// Returns a usable id, or null when the id in the URL is not valid
+function parseId(req) {
+    const id = Number(req.params.id);
+
+    if (!Number.isInteger(id) || id < 1 || id > 2147483647) {
+        return null;
+    }
+
+    return id;
 }
 
-function getApplication(req, res) {
-    const application = Application.getById(Number(req.params.id));
-
-    if (!application) {
-        return res.status(404).json({ error: "Application not found" });
+async function getApplications(req, res, next) {
+    try {
+        res.json(await Application.getAll());
+    } catch (error) {
+        next(error);
     }
-
-    res.json(application);
 }
 
-function createApplication(req, res) {
-    const body = req.body || {};
-    const error = validate(body);
+async function getApplication(req, res, next) {
+    try {
+        const id = parseId(req);
+        const application = id === null ? null : await Application.getById(id);
 
-    if (error) {
-        return res.status(400).json({ error: error });
+        if (!application) {
+            return res.status(404).json({ error: "Application not found" });
+        }
+
+        res.json(application);
+    } catch (error) {
+        next(error);
     }
-
-    const application = Application.create(pickFields(body));
-    res.status(201).json(application);
 }
 
-function updateApplication(req, res) {
-    const body = req.body || {};
-    const error = validate(body);
+async function createApplication(req, res, next) {
+    try {
+        const body = req.body || {};
+        const error = validate(body);
 
-    if (error) {
-        return res.status(400).json({ error: error });
+        if (error) {
+            return res.status(400).json({ error: error });
+        }
+
+        const application = await Application.create(pickFields(body));
+        res.status(201).json(application);
+    } catch (error) {
+        next(error);
     }
-
-    const application = Application.update(Number(req.params.id), pickFields(body));
-
-    if (!application) {
-        return res.status(404).json({ error: "Application not found" });
-    }
-
-    res.json(application);
 }
 
-function deleteApplication(req, res) {
-    const removed = Application.remove(Number(req.params.id));
+async function updateApplication(req, res, next) {
+    try {
+        const body = req.body || {};
+        const error = validate(body);
 
-    if (!removed) {
-        return res.status(404).json({ error: "Application not found" });
+        if (error) {
+            return res.status(400).json({ error: error });
+        }
+
+        const id = parseId(req);
+        const application = id === null
+            ? null
+            : await Application.update(id, pickFields(body));
+
+        if (!application) {
+            return res.status(404).json({ error: "Application not found" });
+        }
+
+        res.json(application);
+    } catch (error) {
+        next(error);
     }
+}
 
-    res.status(204).send();
+async function deleteApplication(req, res, next) {
+    try {
+        const id = parseId(req);
+        const removed = id === null ? false : await Application.remove(id);
+
+        if (!removed) {
+            return res.status(404).json({ error: "Application not found" });
+        }
+
+        res.status(204).send();
+    } catch (error) {
+        next(error);
+    }
 }
 
 module.exports = {
