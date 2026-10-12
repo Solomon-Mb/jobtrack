@@ -1,0 +1,13 @@
+CREATE TABLE IF NOT EXISTS applications (
+    id SERIAL PRIMARY KEY,
+    company VARCHAR(255) NOT NULL,
+    position VARCHAR(255) NOT NULL,
+    status VARCHAR(20) NOT NULL
+        CHECK (status IN ('Applied', 'Interview', 'Offer', 'Rejected')),
+    applied_date DATE NOT NULL,
+    interview_date DATE,
+    website VARCHAR(500) NOT NULL DEFAULT '',
+    location VARCHAR(255) NOT NULL DEFAULT '',
+    notes TEXT NOT NULL DEFAULT '',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
