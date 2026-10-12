@@ -12,9 +12,42 @@
     <header>
         <h1>JobTrack</h1>
         <p>Track your job and internship applications</p>
+                <div id="userBar" class="user-bar hidden">
+            <span>Signed in as <strong id="userName"></strong></span>
+            <button id="logoutBtn" type="button">Log out</button>
+        </div>
     </header>
+        <section id="authSection" class="auth-section hidden">
+        <h2 id="authTitle">Log in</h2>
+        <p id="authError" class="auth-error hidden"></p>
 
-    <main>
+        <form id="loginForm">
+            <label for="loginEmail">Email</label>
+            <input type="email" id="loginEmail" required>
+
+            <label for="loginPassword">Password</label>
+            <input type="password" id="loginPassword" required>
+
+            <button type="submit">Log in</button>
+        </form>
+
+        <form id="registerForm" class="hidden">
+            <label for="registerName">Name</label>
+            <input type="text" id="registerName" required>
+
+            <label for="registerEmail">Email</label>
+            <input type="email" id="registerEmail" required>
+
+            <label for="registerPassword">Password (at least 8 characters)</label>
+            <input type="password" id="registerPassword" required minlength="8">
+
+            <button type="submit">Create account</button>
+        </form>
+
+        <p><a href="#" id="authSwitch">Need an account? Register</a></p>
+    </section>
+
+    <main id="appSection" class="hidden">
     <section class="stats">
         <div class="card">
             <h3>Total Applications</h3>
@@ -111,6 +144,7 @@
     </section>
 </main>
 
+        <script src="auth.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

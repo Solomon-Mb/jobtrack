@@ -32,7 +32,12 @@ function jsonOptions(method, data) {
 }
 
 async function request(url, options) {
-    const response = await fetch(url, options);
+    const response = await fetch(url, withAuth(options));
+
+    if (response.status === 401) {
+        logout("Your session expired. Please log in again.");
+        throw new Error("Please log in again");
+    }
 
     if (!response.ok) {
         let message = "Request failed";
@@ -281,7 +286,16 @@ document.addEventListener("keydown", function (event) {
 
 searchInput.addEventListener("input", displayApplications);
 statusFilter.addEventListener("change", displayApplications);
-
+// Wipes the previous user's data from the page when someone logs out
+function clearApplications() {
+    applications = [];
+    editingId = null;
+    applicationsList.innerHTML = "";
+    jobForm.reset();
+    applicationForm.classList.add("hidden");
+    closeDetails();
+    updateStats();
+}
 // ===== Start =====
 
-loadApplications();
+loadApplications();initAuth(loadApplications, clearApplications);

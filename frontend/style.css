@@ -266,3 +266,69 @@ button[onclick^="deleteApplication"]:hover {
 .application-card button {
     margin-top: 10px;
 }
+
+/* ===== Login, register and user bar ===== */
+.hidden {
+    display: none !important;
+}
+
+.auth-section {
+    max-width: 400px;
+    margin: 40px auto;
+    padding: 25px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.auth-section h2 {
+    margin-top: 0;
+}
+
+.auth-section form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.auth-section input {
+    padding: 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+.auth-section button[type="submit"] {
+    background: #2563eb;
+    color: white;
+    padding: 10px;
+}
+
+.auth-section button[type="submit"]:hover {
+    background: #1d4ed8;
+}
+
+.auth-error {
+    background: #fee2e2;
+    color: #b91c1c;
+    padding: 10px;
+    border-radius: 6px;
+}
+
+.user-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-top: 15px;
+    color: #cbd5e1;
+}
+
+.user-bar button {
+    background: #334155;
+    color: white;
+}
+
+.user-bar button:hover {
+    background: #475569;
+}
