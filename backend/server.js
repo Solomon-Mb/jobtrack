@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const applicationRoutes = require("./routes/applications");
+const authRoutes = require("./routes/auth");
 const { notFound, errorHandler } = require("./middleware/errorHandler");
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -18,6 +19,7 @@ app.get("/api/health", function (req, res) {
 });
 // Application routes
 app.use("/api/applications", applicationRoutes);
+app.use("/api/auth", authRoutes);
 // Error handling (must come after the routes)
 app.use(notFound);
 app.use(errorHandler);
