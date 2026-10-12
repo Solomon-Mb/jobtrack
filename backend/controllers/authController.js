@@ -1,7 +1,12 @@
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// Lets a login for an unknown email take as long as one for a known email,
+// so response time doesn't reveal which emails are registered
+const DUMMY_HASH = bcrypt.hashSync("not-a-real-password", 10);
 
 function isText(value) {
     return typeof value === "string" && value.trim() !== "";
@@ -21,6 +26,13 @@ function validate(body) {
     // bcrypt only uses the first 72 characters of a password
     if (body.password.length > 72) return "Password must be 72 characters or fewer";
     return null;
+}
+
+function getSecret() {
+    if (!process.env.JWT_SECRET) {
+        throw new Error("JWT_SECRET is not set in .env");
+    }
+    return process.env.JWT_SECRET;
 }
 
 async function register(req, res, next) {
@@ -55,4 +67,52 @@ async function register(req, res, next) {
     }
 }
 
-module.exports = { register };
+async function login(req, res, next) {
+    try {
+        const body = req.body || {};
+
+        if (!isText(body.email) || typeof body.password !== "string" || body.password === "") {
+            return res.status(400).json({ error: "Email and password are required" });
+        }
+
+        const user = await User.findByEmail(body.email.trim().toLowerCase());
+
+        const passwordOk = await bcrypt.compare(
+            body.password,
+            user ? user.password_hash : DUMMY_HASH
+        );
+
+        // Same message for "no such email" and "wrong password"
+        if (!user || !passwordOk) {
+            return res.status(401).json({ error: "Invalid email or password" });
+        }
+
+        const token = jwt.sign({ userId: user.id }, getSecret(), {
+            expiresIn: process.env.JWT_EXPIRES_IN || "7d"
+        });
+
+        res.json({
+            token: token,
+            user: { id: user.id, name: user.name, email: user.email }
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
+// Returns the logged-in user (requireAuth sets req.userId)
+async function me(req, res, next) {
+    try {
+        const user = await User.findById(req.userId);
+
+        if (!user) {
+            return res.status(401).json({ error: "User no longer exists" });
+        }
+
+        res.json(user);
+    } catch (error) {
+        next(error);
+    }
+}
+
+module.exports = { register, login, me };
