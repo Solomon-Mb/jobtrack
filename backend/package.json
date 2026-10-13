@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "db:init": "node db/init.js"
+    "db:init": "node db/init.js",
+    "test": "jest --runInBand"
   },
   "keywords": [],
   "author": "",
@@ -20,6 +21,8 @@
     "pg": "^8.23.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "jest": "^30.5.2",
+    "nodemon": "^3.1.14",
+    "supertest": "^7.3.1"
   }
 }
