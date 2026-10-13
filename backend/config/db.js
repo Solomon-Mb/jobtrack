@@ -1,4 +1,4 @@
-require("dotenv").config();
+require("dotenv").config({ quiet: true });
 const { Pool, types } = require("pg");
 
 // Return DATE columns as plain "YYYY-MM-DD" strings (not JavaScript Date objects)
