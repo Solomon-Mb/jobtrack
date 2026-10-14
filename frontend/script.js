@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:5000/api/applications";
+const API_URL = API_BASE + "/api/applications";
 
 const addApplicationBtn = document.getElementById("addApplicationBtn");
 const applicationForm = document.getElementById("applicationForm");
