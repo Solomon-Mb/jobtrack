@@ -1,3 +1,4 @@
+const path = require("path");
 const express = require("express");
 const cors = require("cors");
 const applicationRoutes = require("./routes/applications");
@@ -18,6 +19,9 @@ app.get("/api/health", function (req, res) {
 // Routes
 app.use("/api/applications", applicationRoutes);
 app.use("/api/auth", authRoutes);
+
+// Serve the frontend (index.html, script.js, ...) from the same server
+app.use(express.static(path.join(__dirname, "..", "frontend")));
 
 // Error handling (must come after the routes)
 app.use(notFound);

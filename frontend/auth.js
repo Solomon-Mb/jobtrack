@@ -1,4 +1,6 @@
-const AUTH_URL = "http://localhost:5000/api/auth";
+// Opened from disk (file://) the page talks to the local API; served by the backend it uses the same address
+const API_BASE = window.location.protocol === "file:" ? "http://localhost:5000" : "";
+const AUTH_URL = API_BASE + "/api/auth";
 const TOKEN_KEY = "jobtrack_token";
 const USER_KEY = "jobtrack_user";
 

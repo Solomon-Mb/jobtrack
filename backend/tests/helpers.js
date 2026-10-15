@@ -6,8 +6,8 @@ const PASSWORD = "Passw0rd123";
 
 // Empties both tables and restarts the id counters
 async function resetDatabase() {
-    if (process.env.DB_NAME !== "jobtrack_test") {
-        throw new Error("Refusing to reset a database that is not jobtrack_test");
+    if (process.env.DB_NAME !== "jobtrack_test" || process.env.DATABASE_URL) {
+        throw new Error("Refusing to reset anything except the local jobtrack_test database");
     }
 
     await pool.query("TRUNCATE users, applications RESTART IDENTITY CASCADE");
