@@ -4,13 +4,14 @@ const cors = require("cors");
 const helmet = require("helmet");
 const applicationRoutes = require("./routes/applications");
 const authRoutes = require("./routes/auth");
-const { createAuthLimiter } = require("./middleware/rateLimit");
+const { createAuthLimiter, logClientIp } = require("./middleware/rateLimit");
 const { notFound, errorHandler } = require("./middleware/errorHandler");
 
 const app = express();
 
-// Hosts like Render put a proxy in front of the app. Trust one hop so we see the visitor's real address
-app.set("trust proxy", 1);
+// Hosts like Render put proxies in front of the app. TRUST_PROXY_HOPS says how many to trust,
+// so req.ip is the visitor's real address (needed for rate limiting)
+app.set("trust proxy", Number(process.env.TRUST_PROXY_HOPS) || 1);
 
 // Security headers. The page uses inline onclick handlers, so those are allowed,
 // but scripts injected into the page are still blocked.
@@ -33,7 +34,7 @@ app.use(express.json());
 
 // Slow down password guessing and spam signups
 const authLimiter = createAuthLimiter(Number(process.env.AUTH_RATE_LIMIT_MAX) || 20);
-app.use("/api/auth/login", authLimiter);
+app.use("/api/auth/login", logClientIp, authLimiter);
 app.use("/api/auth/register", authLimiter);
 
 // Test route
