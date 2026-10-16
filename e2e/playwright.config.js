@@ -26,8 +26,9 @@ module.exports = defineConfig({
             PORT: "5000",
             DB_NAME: "jobtrack_test",
             JWT_SECRET: "e2e-secret-for-tests-only",
-                        JWT_EXPIRES_IN: "1h",
-            DATABASE_URL: ""
+                                    JWT_EXPIRES_IN: "1h",
+            DATABASE_URL: "",
+            AUTH_RATE_LIMIT_MAX: "1000"
         }
     }
 });
