@@ -11,4 +11,13 @@ function createAuthLimiter(max) {
     });
 }
 
-module.exports = { createAuthLimiter };
+// Temporary helper: set DEBUG_CLIENT_IP=true to log the address the app sees for each login attempt
+function logClientIp(req, res, next) {
+    if (process.env.DEBUG_CLIENT_IP === "true") {
+        console.log("client ip seen by app:", req.ip, "| x-forwarded-for:", req.headers["x-forwarded-for"]);
+    }
+
+    next();
+}
+
+module.exports = { createAuthLimiter, logClientIp };
