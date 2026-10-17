@@ -1,6 +1,8 @@
 # JobTrack
 
 ![CI](https://github.com/Solomon-Mb/jobtrack/actions/workflows/ci.yml/badge.svg)
+**Live demo:** https://jobtrack-t2oc.onrender.com
+> The app runs on free hosting, so the first visit after a quiet period can take about a minute while the server wakes up.
 
 A full-stack web app for tracking job and internship applications. Create an account, log your applications, follow their status, and see your progress on a dashboard.
 
@@ -71,6 +73,10 @@ The API runs on `http://localhost:5000`. Open `frontend/index.html` in your brow
 | `DB_NAME`, `DB_USER`, `DB_PASSWORD` | Database name and credentials |
 | `JWT_SECRET` | Secret used to sign login tokens |
 | `JWT_EXPIRES_IN` | Token lifetime, for example `7d` |
+| `DATABASE_URL` | Full connection string for a hosted database (used instead of the `DB_*` variables) |
+| `NODE_ENV` | Set to `production` on the host (turns CORS off, because the app is same-origin) |
+| `TRUST_PROXY_HOPS` | How many proxies sit in front of the app, so rate limiting sees each visitor (3 on Render) |
+| `AUTH_RATE_LIMIT_MAX` | Login and register attempts allowed per 15 minutes per visitor (default 20) |
 
 ## API reference
 
@@ -159,7 +165,11 @@ npm test
 - Applications are scoped to the logged-in user
 - User text is escaped before it is rendered
 - Login errors do not reveal whether an email is registered
+- Login and registration are rate limited, and responses carry security headers (helmet)
 
 ## Git workflow
 
 `main` holds tested releases and `develop` collects finished work. Each change is made on a feature branch, opened as a pull request into `develop`, and checked by CI before merging.
+## Deployment
+
+The app runs on Render (one web service that serves both the API and the frontend) with a Neon PostgreSQL database. Render deploys automatically when `main` changes. Environment variables are set in the Render dashboard: `DATABASE_URL`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `NODE_ENV`, `NODE_VERSION` and `TRUST_PROXY_HOPS`.
