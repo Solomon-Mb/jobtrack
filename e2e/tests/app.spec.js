@@ -102,13 +102,12 @@ test("adds, views, edits and deletes an application", async ({ page }) => {
     await expect(page.locator("#interviewApplications")).toHaveText("1");
     await expect(page.locator("#appliedApplications")).toHaveText("0");
     // Delete
-    page.once("dialog", (dialog) => dialog.accept());
-    await card.getByRole("button", { name: "Delete" }).click();
-    // Delete
-    await card.getByRole("button", { name: "Delete" }).click();
+page.once("dialog", (dialog) => dialog.accept());
+await card.getByRole("button", { name: "Delete" }).click();
 
-    await expect(page.locator(".application-card")).toHaveCount(0);
-    await expect(page.locator("#totalApplications")).toHaveText("0");
+// Verify deletion
+await expect(page.locator(".application-card")).toHaveCount(0);
+await expect(page.locator("#totalApplications")).toHaveText("0");
 });
 
 test("search and filter narrow the list but not the statistics", async ({ page }) => {
