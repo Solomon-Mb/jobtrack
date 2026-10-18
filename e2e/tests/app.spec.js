@@ -101,10 +101,8 @@ test("adds, views, edits and deletes an application", async ({ page }) => {
     await expect(card).toContainText("Interview");
     await expect(page.locator("#interviewApplications")).toHaveText("1");
     await expect(page.locator("#appliedApplications")).toHaveText("0");
-    // Delete
+        // Delete
     page.once("dialog", (dialog) => dialog.accept());
-    await card.getByRole("button", { name: "Delete" }).click();
-    // Delete
     await card.getByRole("button", { name: "Delete" }).click();
 
     await expect(page.locator(".application-card")).toHaveCount(0);
