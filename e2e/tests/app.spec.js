@@ -101,7 +101,9 @@ test("adds, views, edits and deletes an application", async ({ page }) => {
     await expect(card).toContainText("Interview");
     await expect(page.locator("#interviewApplications")).toHaveText("1");
     await expect(page.locator("#appliedApplications")).toHaveText("0");
-
+    // Delete
+    page.once("dialog", (dialog) => dialog.accept());
+    await card.getByRole("button", { name: "Delete" }).click();
     // Delete
     await card.getByRole("button", { name: "Delete" }).click();
 
@@ -172,4 +174,29 @@ test("a second user does not see the first user's applications", async ({ page }
 
     await expect(page.locator(".application-card")).toHaveCount(0);
     await expect(page.locator("#totalApplications")).toHaveText("0");
+});
+
+test("keeps the application when the delete confirmation is cancelled", async ({ page }) => {
+    await register(page, "Cancel User", uniqueEmail());
+
+    await addApplication(page, {
+        company: "Spotify",
+        position: "Intern",
+        status: "Applied",
+        date: "2026-10-11"
+    });
+
+    let message = "";
+    page.once("dialog", (dialog) => {
+        message = dialog.message();
+        dialog.dismiss();
+    });
+
+    await page.locator(".application-card", { hasText: "Spotify" })
+        .getByRole("button", { name: "Delete" })
+        .click();
+
+    expect(message).toContain("Spotify");
+    await expect(page.locator(".application-card", { hasText: "Spotify" })).toBeVisible();
+    await expect(page.locator("#totalApplications")).toHaveText("1");
 });
