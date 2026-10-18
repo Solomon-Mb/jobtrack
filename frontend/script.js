@@ -218,6 +218,13 @@ function editApplication(id) {
 }
 
 async function deleteApplication(id) {
+    const application = findApplication(id);
+    const name = application ? application.company : "this application";
+
+    if (!confirm("Delete the application to " + name + "? This cannot be undone.")) {
+        return;
+    }
+
     try {
         await request(API_URL + "/" + id, { method: "DELETE" });
         await loadApplications();
