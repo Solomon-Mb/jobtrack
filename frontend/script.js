@@ -86,9 +86,18 @@ function findApplication(id) {
 
 // ===== Form =====
 
-// Show/hide application form
+// Clears the form and forgets any edit in progress
+function resetForm() {
+    jobForm.reset();
+    editingId = null;
+}
+
+// Show/hide application form. Opening it from this button always starts a new, empty application.
 addApplicationBtn.addEventListener("click", function () {
-    applicationForm.classList.toggle("hidden");
+    const wasHidden = applicationForm.classList.contains("hidden");
+
+    resetForm();
+    applicationForm.classList.toggle("hidden", !wasHidden);
 });
 
 // Submit application form
