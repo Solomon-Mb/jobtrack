@@ -17,6 +17,7 @@ const closeDetailsBtn = document.getElementById("closeDetailsBtn");
 
 const searchInput = document.getElementById("searchInput");
 const statusFilter = document.getElementById("statusFilter");
+const sortSelect = document.getElementById("sortSelect");
 
 let applications = [];
 let editingId = null;
@@ -149,10 +150,28 @@ function displayApplications() {
             selectedStatus === "all" ||
             application.status === selectedStatus;
 
-        return matchesSearch && matchesStatus;
+            return matchesSearch && matchesStatus;
+    });
+
+    const sortOrder = sortSelect.value;
+
+    filteredApplications.sort(function (a, b) {
+        if (sortOrder === "company") {
+            return a.company.localeCompare(b.company);
+        }
+
+        // Dates are YYYY-MM-DD text, so comparing them as text sorts them correctly
+        const byDate = a.date.localeCompare(b.date);
+
+        if (sortOrder === "oldest") {
+            return byDate || a.id - b.id;
+        }
+
+        return -byDate || b.id - a.id;
     });
 
     filteredApplications.forEach(function (application) {
+
         const applicationCard = document.createElement("div");
 
         applicationCard.classList.add("application-card");
@@ -302,6 +321,7 @@ document.addEventListener("keydown", function (event) {
 
 searchInput.addEventListener("input", displayApplications);
 statusFilter.addEventListener("change", displayApplications);
+sortSelect.addEventListener("change", displayApplications);
 // Wipes the previous user's data from the page when someone logs out
 function clearApplications() {
     applications = [];
