@@ -198,3 +198,64 @@ test("keeps the application when the delete confirmation is cancelled", async ({
     await expect(page.locator(".application-card", { hasText: "Spotify" })).toBeVisible();
     await expect(page.locator("#totalApplications")).toHaveText("1");
 });
+
+test("opening the form after cancelling an edit starts with an empty form", async ({ page }) => {
+    await register(page, "Edit Cancel User", uniqueEmail());
+
+    await addApplication(page, {
+        company: "Netflix",
+        position: "Intern",
+        status: "Applied",
+        date: "2026-10-11"
+    });
+
+    // Start an edit, then close the form without saving
+    await page.locator(".application-card", { hasText: "Netflix" })
+        .getByRole("button", { name: "Edit" })
+        .click();
+    await expect(page.locator("#company")).toHaveValue("Netflix");
+
+    await page.locator("#addApplicationBtn").click();
+    await expect(page.locator("#applicationForm")).toBeHidden();
+
+    // Open it again: the form must be empty and saving must create a NEW application
+    await page.locator("#addApplicationBtn").click();
+    await expect(page.locator("#company")).toHaveValue("");
+
+    await page.locator("#company").fill("Dropbox");
+    await page.locator("#position").fill("Developer");
+    await page.locator("#date").fill("2026-10-12");
+    await page.getByRole("button", { name: "Save Application" }).click();
+
+    await expect(page.locator(".application-card", { hasText: "Dropbox" })).toBeVisible();
+    await expect(page.locator(".application-card", { hasText: "Netflix" })).toBeVisible();
+    await expect(page.locator("#totalApplications")).toHaveText("2");
+});
+
+test("sorts applications by company and by date", async ({ page }) => {
+    await register(page, "Sort User", uniqueEmail());
+
+    await addApplication(page, {
+        company: "Zalando",
+        position: "Intern",
+        status: "Applied",
+        date: "2026-10-01"
+    });
+    await addApplication(page, {
+        company: "Adobe",
+        position: "Intern",
+        status: "Applied",
+        date: "2026-10-20"
+    });
+
+    const names = () => page.locator(".application-card h3").allTextContents();
+
+    await page.locator("#sortSelect").selectOption("company");
+    await expect.poll(names).toEqual(["Adobe", "Zalando"]);
+
+    await page.locator("#sortSelect").selectOption("oldest");
+    await expect.poll(names).toEqual(["Zalando", "Adobe"]);
+
+    await page.locator("#sortSelect").selectOption("newest");
+    await expect.poll(names).toEqual(["Adobe", "Zalando"]);
+});
