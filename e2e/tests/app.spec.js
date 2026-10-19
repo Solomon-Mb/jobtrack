@@ -231,3 +231,31 @@ test("opening the form after cancelling an edit starts with an empty form", asyn
     await expect(page.locator(".application-card", { hasText: "Netflix" })).toBeVisible();
     await expect(page.locator("#totalApplications")).toHaveText("2");
 });
+
+test("sorts applications by company and by date", async ({ page }) => {
+    await register(page, "Sort User", uniqueEmail());
+
+    await addApplication(page, {
+        company: "Zalando",
+        position: "Intern",
+        status: "Applied",
+        date: "2026-10-01"
+    });
+    await addApplication(page, {
+        company: "Adobe",
+        position: "Intern",
+        status: "Applied",
+        date: "2026-10-20"
+    });
+
+    const names = () => page.locator(".application-card h3").allTextContents();
+
+    await page.locator("#sortSelect").selectOption("company");
+    await expect.poll(names).toEqual(["Adobe", "Zalando"]);
+
+    await page.locator("#sortSelect").selectOption("oldest");
+    await expect.poll(names).toEqual(["Zalando", "Adobe"]);
+
+    await page.locator("#sortSelect").selectOption("newest");
+    await expect.poll(names).toEqual(["Adobe", "Zalando"]);
+});
